@@ -1,0 +1,263 @@
+---
+title: "Homework 1"
+author: "Melissa Franco"
+date: "9/5/2020"
+output:
+  html_document: default
+  word_document: default
+  pdf_document: default
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+
+ 
+```{r}
+
+setwd("/Users/Melissa/Desktop/R/Algorithms/Homework/Homework 1")
+#install.packages("e1071")
+library(e1071)
+#install.packages("fBasics")
+library(fBasics)
+```
+
+## Exercise 1 
+
+### A)
+
+Create a combined mpg variable called MPG_Combo which combines 55% of the MPG_City and 45% of the MPG_Highway. 
+
+
+
+```{r}
+Cars <- read.csv("CARS.csv", header = TRUE)  
+
+MPG_Combo <- 0.55*Cars$MPG_City+0.45*Cars$MPG_Highway   
+
+Cars <- data.frame(Cars, MPG_Combo)
+
+```
+
+
+Obtain a box plot for MPG_Combo and comment on what the plot tells us about fuel efficiencies.
+
+
+The distribution is right skewed.
+
+
+```{r}
+boxplot(MPG_Combo, xlab = "Cars", ylab = "MPG_Combo", col = "pink"); points(mean(MPG_Combo), col="black")
+```
+
+### (B)
+
+Obtain the box plots for MPG_Combo by Type and comment on any differences you notice between the different vehicle types combined fuel efficiency.
+
+```{r}
+boxplot(MPG_Combo ~ Type, data = Cars, main="MPG_ Combo by Type",
+        xlab="Type", ylab="MPG_Combo", col = "orange")
+```
+
+
+
+Larger vehicles (i.e. Trucks and SUVs) will have a lower average MPG.
+
+
+### C)
+
+Obtain basic descriptive statistics for Invoice for all vehicles. 
+
+Comment on any general features and statistics of the data. 
+Use visual and quantitative methods to comment on whether an assumption of normality would be reasonable for Invoice variable.
+
+
+```{r}
+summary(Cars$Invoice)
+var(Cars$Invoice)
+skewness(Cars$Invoice, na.rm=TRUE)
+hist(Cars$Invoice)
+boxplot(Cars$Invoice, xlab = "Cars", ylab = "Invoice", col = "lightblue"); points(mean(Cars$Invoice), col="red")
+
+```
+
+```{r}
+shapiro.test(Cars$Invoice)
+```
+
+The assumption of normality would not be reasonable for the Invoice variable. 
+
+Qualitatively by viewing the above histogram and box plot to see that they data is right skewed and does not represent any traits of normality. Also by observing the summary of the statistics the mean is greater than the median therefore the distribution is positively (right) skewed.
+
+Quantitatively we use the Shapiro-Wilk Test to check for normality. 
+
+We are using a significance level of 0.05.
+
+The shapiro-wilk test produces a p-value of 2.2e-16 which is less than our significance level thus we have enough information to reject the null hypothesis, therefore our conclusion is that the data does not follow normal distribution. 
+
+
+### D) 
+
+Use visual and quantitative methods to comment on whether an assumption of normality would be reasonable for Invoice variable by Origin. (i.e., check normality of Invoice from i) Europe, ii) Asian, and iii)USA cars).
+
+
+```{r}
+summary(Cars$Invoice[Cars$Origin=="Asia"])
+summary(Cars$Invoice[Cars$Origin=="Europe"])
+summary(Cars$Invoice[Cars$Origin=="USA"])
+
+boxplot(Invoice ~ Origin, data = Cars, main="Invoice by Origin",
+        xlab="Origin", ylab="Invoice", col = "green")
+
+hist(Cars$Invoice[Cars$Origin=="Asia"],main="Invoice Price in Aisa",
+        xlab="Price", ylab="Frequency")
+
+hist(Cars$Invoice[Cars$Origin=="Europe"],main="Invoice Price in Europe",
+        xlab="Price", ylab="Frequency")
+
+hist(Cars$Invoice[Cars$Origin=="USA"],main="Invoice Price in USA",
+        xlab="Price", ylab="Frequency")
+```
+
+```{r}
+qqnorm(Cars$Invoice[Cars$Origin=="Asia"]);qqline(Cars$Invoice[Cars$Origin=="Asia"], col = 2)
+
+qqnorm(Cars$Invoice[Cars$Origin=="Europe"]);qqline(Cars$Invoice[Cars$Origin=="Europe"], col = 2)
+
+qqnorm(Cars$Invoice[Cars$Origin=="USA"]);qqline(Cars$Invoice[Cars$Origin=="USA"], col = 2)
+```
+
+### Shapiro-Wilk Normality Test
+
+If p-value is larger than significance level, we do not have enough evidence to reject the null hypothesis. 
+
+If p-value is smaller than significance level, we have enough evidence to reject the null hypothesis.
+
+
+We will run the Shapiro-Wilk Normality test with a significance level of 0.05 for the following test hypothesis:
+
+H0: Data follows normal distribution
+Ha: Data does not follow normal distribution
+
+```{r}
+shapiro.test(Cars$Invoice[Cars$Origin=="Asia"])
+
+shapiro.test(Cars$Invoice[Cars$Origin=="Europe"])
+
+shapiro.test(Cars$Invoice[Cars$Origin=="USA"])
+```
+
+We are using a significance level of 0.05.
+
+All p-values are less than our significance level thus we have enough information to reject the null hypothesis, thus our conclusion is that the data does not follow normal distribution. 
+
+
+The assumption of normality would not be reasonable for the Invoice variable. 
+
+Qualitatively by viewing the above histogram, box plot, and QQ plot to see that they data is right skewed and does not represent any traits of normality. Also by observing the summary of the statistics the mean is greater than the median therefore the distribution is positively (right) skewed.
+
+Quantitatively we use the Shapiro-Wilk Test to check for normality. All p-values are significantly less that our significance level of 0.05.
+
+## Exercise 2 
+
+Perform a hypothesis test of whether cars originated in Europe have different invoice price than Asian cars, and state your conclusions
+
+### A)
+
+Which test should we perform, and why? Justify your answer based on findings on Exercise 1 (d). 
+
+As illustrated on Exercise 1(d) the data for Invoice by each Origin do not have a normal distribution so we will run the Wilcoxon rank-sum test.
+
+First we need to determine if we will run a two-sided test 
+or a one sided test:
+
+Two-sided Test: 
+Ho: two populations come from the same distribution
+Ha: one of the pops tends to have larger values (either population 1 or 2)
+
+One-sided Test:
+Ha: pop 1 has larger values than pop 2
+
+
+```{r}
+
+Europe_Invoice <- c(Cars$Invoice[Cars$Origin=="Europe"])
+                       
+Asia_Invoice  <- c(Cars$Invoice[Cars$Origin=="Asia"])
+
+summary(Europe_Invoice)
+summary(Asia_Invoice)
+
+```
+
+From the above summary of the date it is evident that the population of Europe Invoices (population 1) tends to have larger values than Asia Invoices (population 2) so we will use a one sided test. 
+
+
+
+## B) 
+
+We will preform a one-sided Wilcoxon rank-sum test.
+
+Specify null and alternative hypothesis
+
+Ho: Invoice Price in Europe are equal to the Invoice Price in Asia
+
+Ha: Invoice Price in Europe is larger than the Invoice Price in Asia
+
+
+```{r}
+Europe_Invoice <- c(Cars$Invoice[Cars$Origin=="Europe"])
+                       
+Asia_Invoice  <- c(Cars$Invoice[Cars$Origin=="Asia"])
+
+wilcox.test(Europe_Invoice, Asia_Invoice)
+```
+
+
+## C) 
+
+State the conclusion based on the test result.
+
+
+The Wilcoxon Rank Sum test produces a p-value  = 2.2e-16 which is smaller than our significance level of 0.05, so we reject the null hypothesis and accept our alternative hypothesis that the invoice price in Europe is greater than the invoice price in Asia. 
+
+
+
+## Exercise 3
+
+Perform a hypothesis test -whether Wind in July has a different speed (mph) than Wind in August.
+
+```{r}
+
+month7.wind = airquality[airquality$Month==7,"Wind"]
+month8.wind = airquality[airquality$Month==8,"Wind"]
+
+summary(month7.wind)
+summary(month8.wind)
+
+boxplot(month7.wind)
+boxplot(month8.wind)
+
+shapiro.test(month7.wind)
+shapiro.test(month8.wind)
+
+qqnorm(month7.wind); qqline(month7.wind, col = 2)
+qqnorm(month8.wind); qqline(month8.wind, col = 2)
+```
+
+
+Data represents normal distribution
+
+Now we must check the variance.
+
+```{r}
+
+var(month7.wind)
+var(month8.wind)
+```
+
+Since varince is not equal we will preform the Satterthwaite t-test.
+
+
+
