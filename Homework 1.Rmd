@@ -1,0 +1,92 @@
+---
+title: "Homework 1"
+author: "Melissa Franco"
+date: "9/5/2020"
+output:
+  html_document: default
+  word_document: default
+  pdf_document: default
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+setwd("/Users/Melissa/Desktop/R/Algorithms/Homework/Homework 1")
+Cars <- read.csv("CARS.csv", header = TRUE)  
+
+### Exercise 1 
+
+## a)
+
+Create a combined mpg variable called MPG_Combo which combines 55% of the MPG_City and 45% of the MPG_Highway. Obtain a box plot for MPG_Combo and comment on what the plot tells us about fuel efficiencies.
+
+
+```{r}
+Cars <- read.csv("CARS.csv", header = TRUE)  
+
+MPG_Combo <- 0.55*Cars$MPG_City+0.45*Cars$MPG_Highway   
+
+Cars <- data.frame(Cars, MPG_Combo)
+
+```
+
+
+The distribution is right skewed.
+
+```{r}
+boxplot(MPG_Combo); points(mean(MPG_Combo), col="green")
+```
+
+## (b)
+
+Obtain the box plots for MPG_Combo by Type
+
+```{r}
+boxplot(MPG_Combo ~ Type, data = Cars, main="MPG_ Combo by Type",
+        xlab="Type", ylab="MPG_Combo")
+```
+
+## C)
+
+Obtain basic descriptive statistics for Invoice for all vehicles. Comment on any general features and statistics of the data. Use visual and quantitative methods to comment on whether an assumption of Normality would be reasonable for Invoice variable.
+
+
+```{r}
+#install.packages("e1071")
+library(e1071)
+#install.packages("fBasics")
+library(fBasics)
+
+summary(Cars$Invoice)
+mean(Cars$Invoice)
+var(Cars$Invoice)
+skewness(Cars$Invoice, na.rm=TRUE)
+range(Cars$Invoice)
+hist(Cars$Invoice)
+boxplot(Cars$Invoice); points(mean(Cars$Invoice), col="red")
+
+```
+
+
+## D) 
+Use visual and quantitative methods to comment on whether an assumption of normality would be reasonable for Invoice variable by Origin. (i.e., check normality of Invoice from i) Europe, ii) Asian, and iii)USA cars.
+
+
+```{r}
+
+hist(Cars$Invoice[Cars$Origin=="Asia"])
+
+hist(Cars$Invoice[Cars$Origin=="Europe"])
+
+hist(Cars$Invoice[Cars$Origin=="USA"])
+```
+
+```{r}
+qqnorm(Cars$Invoice[Cars$Origin=="Asia"]);qqline(Cars$Invoice[Cars$Origin=="Asia"])
+
+qqnorm(Cars$Invoice[Cars$Origin=="Europe"]);qqline(Cars$Invoice[Cars$Origin=="Europe"])
+
+qqnorm(Cars$Invoice[Cars$Origin=="USA"]);qqline(Cars$Invoice[Cars$Origin=="USA"])
+```
+
