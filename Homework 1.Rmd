@@ -1,19 +1,17 @@
 ---
-title: "Homework 1"
+title: "Homework One"
 author: "Melissa Franco"
 date: "9/5/2020"
 output:
-  word_document: default
-  pdf_document: default
   html_document: default
+  pdf_document: default
+  word_document: default
 ---
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
 ```
 
-
- 
 ```{r}
 
 setwd("/Users/Melissa/Desktop/R/Algorithms/Homework/Homework 1")
@@ -26,11 +24,9 @@ library(fBasics)
 ## Exercise 1 
 
 ### A)
+Create a combined mpg variable called MPG_Combo which combines 55% of the MPG_City and 45% of the MPG_Highway.
 
-Create a combined mpg variable called MPG_Combo which combines 55% of the MPG_City and 45% of the MPG_Highway. 
-
-
-
+Obtain a box plot for MPG_Combo and comment on what the plot tells us about fuel efficiencies.
 ```{r}
 Cars <- read.csv("CARS.csv", header = TRUE)  
 
@@ -40,16 +36,13 @@ Cars <- data.frame(Cars, MPG_Combo)
 
 ```
 
-
-Obtain a box plot for MPG_Combo and comment on what the plot tells us about fuel efficiencies.
-
-
-The distribution is right skewed.
-
+The box plot for MPG_Combo tells us that the overall overage for all vehicles' combined MPG are more condensed and the distribution is slight positively skewed with various outliers exceeding 30 MPG.
 
 ```{r}
-boxplot(MPG_Combo, xlab = "Cars", ylab = "MPG_Combo", col = "pink"); points(mean(MPG_Combo), col="black")
+boxplot(MPG_Combo, xlab = "Cars", ylab = "MPG_Combo", col = "lightblue"); points(mean(MPG_Combo), col="black")
 ```
+
+
 
 ### (B)
 
@@ -57,13 +50,17 @@ Obtain the box plots for MPG_Combo by Type and comment on any differences you no
 
 ```{r}
 boxplot(MPG_Combo ~ Type, data = Cars, main="MPG_ Combo by Type",
-        xlab="Type", ylab="MPG_Combo", col = "orange")
+        xlab="Type", ylab="MPG_Combo", col = "lightgrey")
 ```
 
 
 
-Larger vehicles (i.e. Trucks and SUVs) will have a lower average MPG.
-
+Larger vehicles (i.e. Trucks and SUVs) have a lower average MPG that is close to 20 MPG.
+Sedans have a wide spread of MPG that have various outliers exceeding 35 MPG. 
+Sports vehicles are more condensed with 75% of the vehicles averaging at least 25 MPG
+SUV's are also more condensed with 75% of them averaging less than 20 MPG
+Truck data is condensed and positively skewed.
+Wagons are also slightly positively skewed and has a wide spread. 
 
 ### C)
 
@@ -72,13 +69,12 @@ Obtain basic descriptive statistics for Invoice for all vehicles.
 Comment on any general features and statistics of the data. 
 Use visual and quantitative methods to comment on whether an assumption of normality would be reasonable for Invoice variable.
 
-
 ```{r}
 summary(Cars$Invoice)
 var(Cars$Invoice)
 skewness(Cars$Invoice, na.rm=TRUE)
 hist(Cars$Invoice)
-boxplot(Cars$Invoice, xlab = "Cars", ylab = "Invoice", col = "lightblue"); points(mean(Cars$Invoice), col="red")
+boxplot(Cars$Invoice, xlab = "Cars", ylab = "Invoice", col = "lightgreen"); points(mean(Cars$Invoice), col="black")
 
 
 ```
@@ -89,19 +85,16 @@ shapiro.test(Cars$Invoice)
 
 The assumption of normality would not be reasonable for the Invoice variable. 
 
-Qualitatively by viewing the above histogram and box plot to see that they data is right skewed and does not represent any traits of normality. Also by observing the summary of the statistics the mean is greater than the median therefore the distribution is positively (right) skewed.
+Qualitatively by viewing the above histogram and box plot to see that they data is right skewed and does not represent any traits of normality. Also by observing the summary of the statistics the mean is greater than the median, therefore the distribution is positively (right) skewed.
 
 Quantitatively we use the Shapiro-Wilk Test to check for normality. 
-
 We are using a significance level of 0.05.
 
-The shapiro-wilk test produces a p-value of 2.2e-16 which is less than our significance level thus we have enough information to reject the null hypothesis, therefore our conclusion is that the data does not follow normal distribution. 
-
+The Shapiro-Wilk test produces a p-value of 2.2e-16 which is less than our significance level thus we have enough information to reject the null hypothesis and accept the alternative. Our conclusion is that the data does not follow normal distribution. 
 
 ### D) 
 
 Use visual and quantitative methods to comment on whether an assumption of normality would be reasonable for Invoice variable by Origin. (i.e., check normality of Invoice from i) Europe, ii) Asian, and iii)USA cars).
-
 
 ```{r}
 summary(Cars$Invoice[Cars$Origin=="Asia"])
@@ -109,7 +102,7 @@ summary(Cars$Invoice[Cars$Origin=="Europe"])
 summary(Cars$Invoice[Cars$Origin=="USA"])
 
 boxplot(Invoice ~ Origin, data = Cars, main="Invoice by Origin",
-        xlab="Origin", ylab="Invoice", col = "green")
+        xlab="Origin", ylab="Invoice", col = "grey")
 
 hist(Cars$Invoice[Cars$Origin=="Asia"],main="Invoice Price in Aisa",
         xlab="Price", ylab="Frequency")
@@ -153,12 +146,11 @@ We are using a significance level of 0.05.
 
 All p-values are less than our significance level thus we have enough information to reject the null hypothesis, thus our conclusion is that the data does not follow normal distribution. 
 
-
 The assumption of normality would not be reasonable for the Invoice variable. 
 
 Qualitatively by viewing the above histogram, box plot, and QQ plot to see that they data is right skewed and does not represent any traits of normality. Also by observing the summary of the statistics the mean is greater than the median therefore the distribution is positively (right) skewed.
 
-Quantitatively we use the Shapiro-Wilk Test to check for normality. All p-values are significantly less that our significance level of 0.05.
+Quantitatively we use the Shapiro-Wilk Test to check for normality. All p-values are significantly less that our significance level of 0.05 so we will reject the null hypothesis and accept the alternative.
 
 ## Exercise 2 
 
@@ -168,7 +160,7 @@ Perform a hypothesis test of whether cars originated in Europe have different in
 
 Which test should we perform, and why? Justify your answer based on findings on Exercise 1 (d). 
 
-As illustrated on Exercise 1(d) the data for Invoice by each Origin do not have a normal distribution so we will run the Wilcoxon rank-sum test.
+As illustrated on Exercise 1(d) the data for Invoice by each Origin does not have a normal distribution so we will run the Wilcoxon rank-sum test.
 
 First we need to determine if we will run a two-sided test 
 or a one sided test:
@@ -179,7 +171,6 @@ Ha: one of the pops tends to have larger values (either population 1 or 2)
 
 One-sided Test:
 Ha: pop 1 has larger values than pop 2
-
 
 ```{r}
 
@@ -192,9 +183,7 @@ summary(Asia_Invoice)
 
 ```
 
-From the above summary of the date it is evident that the population of Europe Invoices (population 1) tends to have larger values than Asia Invoices (population 2) so we will use a one sided test. 
-
-
+From the above summary of the data it is evident that the population of Europe Invoices (population 1) tends to have larger values than Asia Invoices (population 2) so we will use a one sided test. 
 
 ## B) 
 
@@ -208,13 +197,8 @@ Ha: Invoice Price in Europe is larger than the Invoice Price in Asia
 
 
 ```{r}
-Europe_Invoice <- c(Cars$Invoice[Cars$Origin=="Europe"])
-                       
-Asia_Invoice  <- c(Cars$Invoice[Cars$Origin=="Asia"])
-
 wilcox.test(Europe_Invoice, Asia_Invoice)
 ```
-
 
 ## C) 
 
@@ -222,8 +206,6 @@ State the conclusion based on the test result.
 
 
 The Wilcoxon Rank Sum test produces a p-value  = 2.2e-16 which is smaller than our significance level of 0.05, so we reject the null hypothesis and accept our alternative hypothesis that the invoice price in Europe is greater than the invoice price in Asia. 
-
-
 
 ## Exercise 3
 
@@ -241,8 +223,8 @@ month8.wind = airquality[airquality$Month==8,"Wind"]
 summary(month7.wind)
 summary(month8.wind)
 
-boxplot(month7.wind)
-boxplot(month8.wind)
+boxplot(month7.wind,xlab = "Month 7", ylab = "Wind Speed", col = "lightblue"); points(mean(MPG_Combo), col="red")
+boxplot(month8.wind, xlab = "Month 8", ylab = "Wind Speed", col = "lightblue"); points(mean(MPG_Combo), col="red")
 
 shapiro.test(month7.wind)
 shapiro.test(month8.wind)
@@ -251,10 +233,23 @@ qqnorm(month7.wind); qqline(month7.wind, col = 2)
 qqnorm(month8.wind); qqline(month8.wind, col = 2)
 ```
 
+The assumption of normality would not be reasonable for the speed of the wind in July and August. 
 
-Data represents normal distribution
+We are using a significance level of 0.05.
 
-Now we must check the variance.
+By the Shapiro-Wilk test, our p-values are greater than our significance level thus we have enough information to accept the null hypothesis, thus our conclusion is that the data follows normal distribution. 
+
+Qualitatively by viewing the above histogram, box plot, and QQ plot to see that they data is symmetrical and does represent traits of normality. Also by observing the summary of the statistics the mean and median are almost equal therefore the distribution can be described as symmetrical/normal.
+
+Quantitatively we use the Shapiro-Wilk Test to check for normality. All p-values are significantly great that our significance level of 0.05 so we will accept the null hypothesis.
+
+## B)
+Specify null and alternative hypothesis.
+
+Ho: Wind in July = Wind in August
+Ha: Wind in August != Wind in August
+
+Data represents normal distribution so now we will check the variance.
 
 ```{r}
 var(month7.wind)
@@ -268,24 +263,20 @@ var.test(airquality$Month==7, airquality$Month==8, alternative = "two.sided")
 For the variance test we use the following null and alternative hypothesis:
 
 Ho: Two groups have the same variance
-
 Ha: Two groups have different variances
-
 
 The test produces a p-value = 1.
 P-Value > Test statistic 
-Therefore we do not reject the Ho.
+Therefore we do not reject the null hypothesis and determine that the wind speed in both July and August have equal variance.
 
-There
-
-Since variances are equal we will preform the Pooled t-test
+Since variances are equal we will preform the Pooled t-test.
 
 ```{r}
 t.test(airquality$Month==7, airquality$Month==8, alterntive = "two.sided", var.equal = TRUE)
 ```
 
 
-The Pooled t-test produces a p-value = 1. We do not reject the Ho.
+The Pooled t-test produces a p-value = 1. We do not reject the null and can conclude that the wind speed in July is equal to the wind speed in August.
 
 
 
