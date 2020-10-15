@@ -1,0 +1,546 @@
+---
+title: "Homework 2"
+author: "Melissa Franco"
+date: "9/18/2020"
+output:
+  word_document: default
+  html_document: default
+  pdf_document: default
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(DescTools); library(car)
+setwd("/Users/Melissa/Desktop/R/Algorithms/Homework/Homework 2")
+```
+
+```{r}
+heartbchol <- read.csv("heartbpchol.csv")
+bupa <- read.csv("bupa.csv")
+```
+
+## Exercise 1: Analysis of Variance
+Use the significance level of .05
+
+The heartbpchol.csv data set contains continuous cholesterol (Cholesterol) and blood pressure status
+(BP_Status) (category: High/ Normal/ Optimal) for alive patients. 
+For the heartbpchol.xlsx data set, consider a one-way ANOVA model to identify differences between group cholesterol means. The normality assumption is reasonable, so you can proceed without testing normality.
+
+
+## A) 
+Perform a one-way ANOVA for Cholesterol with BP_Status as the categorical predictor. Comment on statistical significance of BP_Status, the amount of variation described by the model, and whether or not the equal variance assumption can be trusted.
+
+
+
+We will begin by viewing the data set and checking to see if the data is balanced.
+
+```{r}
+str(heartbchol)
+names(heartbchol)
+
+heartbchol$BP_Status <- as.factor(heartbchol$BP_Status)
+table(heartbchol$BP_Status)
+```
+We note that the groups are unbalanced and we will perform a one-way ANOVA test. 
+
+Our ANOVA hypothesis is as follows:
+
+Cholesterol is our response variable and BP Status is our categorical variable. 
+
+Ho: The means of each group are equal (i.e. m1 = m2 = m3)/ No Blood Pressure status effect on Cholesterol
+
+Ha: At least one of the groups has a significantly different mean than the others/Blood Pressure status effects Cholesterol 
+
+
+We will first test our ANOVA hypothesis.
+
+```{r}
+aov.heart <- aov(Cholesterol ~ BP_Status, data=heartbchol) 
+summary(aov.heart)   
+```
+
+Our ANOVA test produces the following information:
+We obtain a P-Value of 0.00137, which is significantly less than our test statistic (0.05), therefore we will reject our null hypothesis and accept that at least one of the groups has a significantly different mean than the others/Blood Pressure status effect on Cholesterol.
+
+Let us now take a look at the variation of Cholesterol that can be explained by our model.
+
+R^2
+```{r}
+lm.res <- lm(Cholesterol ~ BP_Status, data=heartbchol)
+anova(lm.res)
+summary(lm.res)$r.squared
+```
+BP Status can explain 2.4% of the behavior of Cholesterol.
+
+
+We will next check our model assumption of homoscedasticity through the Levene test.
+
+The hypothesis for the Levene test is as follows:
+
+Ho: Variances are equal
+
+Ha: At least one group has a different variance
+
+```{r}
+LeveneTest(aov.heart) 
+```
+By the Levene test we receive a P-Value of 0.8332 which is significantly greater than our test statistic (0.05). Therefore, we will accept our null hypothesis that the groups have equal variance. 
+
+
+Next we will graphically represent the relationships between the studied groups with regard to our response variable, Cholesterol. 
+
+```{r}
+boxplot(Cholesterol ~ BP_Status, data = heartbchol, main = "Distribution of Cholesterol by Blood Pressure Status")
+par(mfrow=c(2,2)) 
+plot(aov.heart)
+
+```
+
+Qualitatively by viewing the above box plot and QQ plot we see that the data is symmetrical, with several outliers, and does represent traits of normality with some right tail behavior. 
+
+
+## B) 
+
+Comment on any significantly different cholesterol means as determined by the post-hoc test comparing all pairwise differences. Specifically explain what that tells us about differences in Cholesterol levels across blood pressure status groups, like which group has the highest or lowest mean values of Cholesterol.
+
+
+Our ANOVA test indicated that at least one of the groups has a significantly different mean than the others.
+To determine which group/groups have a different mean we will run a post-hoc procedure called Tukey's honestly significant difference (HSD).
+
+```{r}
+TukeyHSD(aov.heart)  
+```
+The output presents the pair-wise group mean differences, followed by their confidence levels, and then their corresponding p-values. 
+
+We will use our p-value for the following hypothesis:
+
+Ho: There is no significant difference between the group means
+
+Ha: There is a significant difference between the group means
+
+Only the top two rows (Normal - High, Optimal - High) produce a p-value that is significantly smaller than our test statistic (0.05). Therefore, we reject our null hypothesis and accept the alternative hypothesis that there is a significant difference between the group means. 
+
+For Normal - High, it can be determined that High is greater than Normal.
+For Optimal - High, it can be determined that High is also greater than Optimal. 
+
+Since the bottom row, Optimal - Normal, produced a significantly large p-value, we accept our null hypothesis that there is no significant difference between the group means. 
+
+For Optimal - Normal, it can be determined that they have equal means.
+
+Conclusively, high blood pressure has a significant effect on cholesterol and specifically:
+High > Normal = Optimal 
+
+
+## Exercise 2: Analysis of Variance
+
+For this problem use the bupa.csv data set. 
+The mean corpuscular volume and alkaline phosphatase are blood tests thought to be sensitive to liver disorder related to excessive alcohol consumption. 
+We assume that normality and independence assumptions are valid.
+
+## A) 
+Perform a one-way ANOVA for mcv as a function of drinkgroup. 
+Comment on significance of the drinkgroup, the amount of variation described by the model, and whether or not the equal variance assumption can be trusted.
+
+
+We will begin by viewing our data and we assume that the normality and independence assumptions are valid.
+We will note that the data set is unbalanced and will move on to performing a one-way ANOVA test to determine if mean corpuscular volume (mcv) is effected by drinkgroup. 
+
+```{r}
+str(bupa)
+names(bupa)
+
+bupa$drinkgroup <- as.factor(bupa$drinkgroup)
+table(bupa$drinkgroup)
+```
+
+Our ANOVA hypothesis is as follows:
+
+Ho: The means of each group are equal (i.e. m1 = m2 = m3 = m4 = m5)/ No Drinkgroup effect on mcv
+
+Ha: At least one of the groups has a significantly different mean than the others/Drinkgroup effect on mcv
+
+Our response variable is mcv and drinkgroup is our categorical predictor.
+
+We will first test our ANOVA hypothesis.
+```{r}
+aov.mcv1<- aov(mcv ~ drinkgroup, data=bupa) 
+summary(aov.mcv1)   
+```
+Our ANOVA test produces the following information:
+
+We obtain a P-Value of 7.43e-08, which is significantly less than our test statistic (0.05), therefore we will reject our null hypothesis and accept that at least one of the groups has a significantly different mean than the others/drinkgroup effect on mcv.
+
+Let us now take a look at the variation of mcv that can be explained by our model.
+
+R^2
+```{r}
+lm.res <- lm(mcv ~ drinkgroup, data=bupa)
+anova(lm.res)
+summary(lm.res)$r.squared
+```
+Drinkgroup can explain 10.77% of the behavior of mcv.
+
+We will check our model assumptions through the Levene test.
+
+The hypothesis for the Levene test are as follows:
+
+Ho: Variances are equal
+
+Ha: At least one group has a different variance
+```{r}
+LeveneTest(aov.mcv1) 
+```
+By the Levene test we receive a P-Value of 0.8744 which is significantly greater than our test statistic (0.05), thus, we will accept our null hypothesis that the groups have equal variance. 
+
+Next we will graphically represent the relationships between the studied groups with regard to our response variable, mcv.
+```{r}
+boxplot(mcv ~ drinkgroup, data = bupa, main = "Distribution of MCV by Drinkgroup")
+par(mfrow=c(2,2)) 
+plot(aov.mcv1)
+```
+Qualitatively by viewing the above box plot and QQ plot we see that the data is symmetrical, with very few outliers on both the left and right tail, and does represent traits of normality. 
+
+## B) 
+Perform a one-way ANOVA for alkphos as a function of drinkgroup. Comment on statistical
+significance of the drinkgroup, the amount of variation described by the model, and whether or
+not the equal variance assumption can be trusted.
+```{r}
+aov.mcv2 <- aov(alkphos ~ drinkgroup, data=bupa) 
+summary(aov.mcv2) 
+```
+Our ANOVA test produces the following information:
+
+We obtain a P-Value of 0.00495, which is significantly less than our test statistic (0.05), therefore we will reject our null hypothesis and accept that at least one of the groups has a significantly different mean than the others/drinkgroup effect on alkphos.
+
+Let us now take a look at the variation of alkphos that can be explained by our model.
+
+R^2
+```{r}
+lm.res1 <- lm(alkphos ~ drinkgroup, data=bupa)
+anova(lm.res1)
+summary(lm.res1)$r.squared
+```
+Drinkgroup can explain 4.27% of the behavior of alkphos.
+
+We will check our model assumptions through the Levene test.
+
+The hypothesis for the Levene test is as follows:
+
+Ho: Variances are equal
+
+Ha: At least one group has a different variance
+```{r}
+LeveneTest(aov.mcv2)
+```
+By the Levene test we receive a p-value of 0.5201 which is significantly greater than our test statistic (0.05), thus we will accept our null hypothesis that the groups have equal variance. 
+
+Next we will graphically represent the relationships between the studied groups with regard to our response variable, alkphos.
+```{r}
+boxplot(alkphos ~ drinkgroup, data = bupa, main = "Distribution of Alkphos by Drinkgroup")
+par(mfrow=c(2,2)) 
+plot(aov.mcv2)
+```
+Qualitatively by viewing the above box plot and QQ plot we see that the data is symmetrical, with a few outliers, and does represent traits of normality.
+
+## C) 
+Perform post-hoc tests for models in a) and b). Comment on any similarities or differences you
+observe from their results.
+
+Post- hoc test for model (a):
+```{r}
+TukeyHSD(aov.mcv1) 
+```
+The output presents the pair-wise group mean differences, followed by their confidence levels, and then their corresponding p-values. 
+
+We will use our p-value for the following hypothesis:
+
+Ho: There is no significant difference between the group means
+
+Ha: There is a significant difference between the group means
+
+Only four rows produce a p-value that is significantly smaller than our test statistic (0.05), therefore we accept the alternative hypothesis that there is a significant difference between the group means. 
+
+For 4-1, it can determined that group 4 is greater than group 1.
+
+For 5-1, it can determined that group 5 is greater than group 1.
+
+For 4-2, it can determined that group 4 is greater than group 2.
+
+For 4-3, it can determined that group 4 is greater than group 3.
+
+
+Alternatively the remaining rows (2-1, 3-1, 3-2, 5-2, 5-3, 5-4) each produced a p-value greater than our test statistic, thus we accept our null hypothesis that there is no significant difference between the group means. 
+
+
+Post-hoc test for model (B):
+```{r}
+TukeyHSD(aov.mcv2) 
+```
+The output presents the pair-wise group mean differences, followed by their confidence levels, and then their corresponding p-values. 
+
+We will use our p-value for the following hypothesis:
+
+Ho: There is no significant difference between the group means
+
+Ha: There is a significant difference between the group means
+
+Only four rows produce a p-value that is significantly smaller than our test statistic (0.05). Therefore we accept the alternative hypothesis that there is a significant difference between the group means. 
+
+For 5-1, it can determined that group 5 is greater than group 1.
+
+For 5-2, it can determined that group 5 is greater than group 2.
+
+For 5-3, it can determined that group 5 is greater than group 3.
+
+For 5-4, it can determined that group 5 is greater than group 4.
+
+Alternatively the remaining rows, (2-1, 3-1, 4-1, 3-2, 4-2, 4-3) produced a p-value greater than our test statistic, we accept our null hypothesis that there is no significant difference between the group means. 
+
+For groups 1,2,3, and 4 it can be determined that they have equal means.
+
+Conclusively, high blood pressure has a significant effect on cholesterol and specifically:
+5 > 1 = 2 = 3 = 4
+
+## Instructor Note
+For Exercise 3 and 4, we will NOT run the equal variance test (Levene's Test) and will assume the homoscedasticity. As we have just a small number of samples for each cell for the implementation of Levene's Test (or boxplot), we will not consider this for the class and just go ahead with the standard ANOVA that I covered in the class. No Welch's ANOVA for Exercise 3 and 4.
+
+## Exercise 3:
+
+The psychology department at a hypothetical university has been accused of underpaying female faculty members. The data represent salary (in thousands of dollars) for all 22 professors in the department.
+This problem is from Maxwell and Delaney (2004).
+
+## A) 
+Fit a two-way ANOVA model including sex (F, M) and rank (Assistant, Associate) the interaction term. 
+What do the Type 1 and Type 3 sums of squares tell us about significance of effects? 
+
+Is the interaction between sex and rank significant? 
+Also comment on the variation explained by the model.
+
+We will begin by viewing our data and checking if balanced or unbalanced. We see that our data is unbalanced.
+```{r}
+psych <- read.csv("psych.csv")
+names(psych)
+
+psych$sex <- as.factor(psych$sex)
+psych$rank <- as.factor(psych$rank)
+str(psych)
+table(psych$sex);table(psych$rank)
+```
+
+We will begin by running a type I two-way ANOVA test for interaction between sex and rank:
+```{r}
+aov.salary <- aov(salary ~ sex * rank, data = psych)
+aov.salary1 <- aov(salary ~ rank * sex, data = psych)
+summary(aov.salary)
+summary(aov.salary1)
+```
+We interpret our type I two-way ANOVA test as follows:
+
+Since we are wanting to determine if there is an interaction between sex and rank.
+Our test hypothesis is as follows:
+
+Ho: No interaction
+
+Ha: Interaction
+
+Both of our outputs provided the interaction of the two variables (sex:rank) is associated with a p-value of 0.795 which is significantly larger than our significance level of 0.05. For this reason we accept our null hypothesis that the interaction is not significant which we interpret as suggesting that the effect (if any) of sex upon salary is the same for rank (Assistant and Associate).
+
+
+We will next run a Type III two-way ANOVA test for interaction between sex and rank:
+```{r}
+Anova(aov.salary, type = 3)
+```
+The type III ANOVA test produces a p-value of 0.795 for interaction of the two variables (sex:rank). Thus our conclusion is the same: The interaction is not significant which we interpret as suggesting that the effect (if any) of sex upon salary is the same for rank (Assistant and Associate).
+
+Let us examine the boxplots for the interaction:
+```{r}
+boxplot(salary ~ sex:rank, data = psych, main = "Distribution of Salary based on interaction between Sex and Rank")
+```
+The resulting boxplots reveal that both male and females who hold a rank of associate have more earned salary, while those in the the assistant rank tend to be lower, regardless of sex. However we can observed that females typically average a lower salary regardless of rank.
+
+
+## B) 
+Refit the model without the interaction term. 
+Comment on the significance of effects and variation explained. 
+
+Report and interpret the Type 1 and Type 3 tests of the main effects. Are the main effects of rank and sex significant?
+
+We will begin by performing a type I two way ANOVA test (sequential). Since order matters we will start with sex then rank and then the reverse.
+```{r}
+aov.salary3 <- aov(salary ~ sex + rank, data = psych)
+summary(aov.salary3)
+```
+Our results provide significantly small P-Values. 
+Our test hypothesis for ANOVA is as follows:
+
+Ho: Sex and Rank have no effect on Salary
+
+Ha: Sex and Rank have effect on Salary 
+
+The first test produce p-values for both sex and rank that are significantly less than our test statistic (0.05) thus we we will reject our null hypothesis and accept our alternative hypothesis that sex and rank have an effect on salary.
+
+New we will run another type I two-way ANOVA test with rank and sex. 
+```{r}
+aov.salary4 <- aov(salary ~ rank + sex, data = psych)
+summary(aov.salary4)
+```
+This test also produces p-values that are significantly less than our test statistic, thus the same conclusion holds. We accept that rank and sex have an effect on salary. 
+
+
+Next we will run a type III two-way ANOVA test:
+```{r}
+aov.salary4 <- aov(salary ~ sex + rank, data = psych)
+Anova(aov.salary4, type=3)
+```
+Our Type III test focuses on unique contribution and for this type of test order is inconsequential. Since our p-values are significantly less that our test statistic we will accept our alternate hypothesis that sex and rank have significant effect on salary. 
+
+## C) 
+Obtain model diagnostics to validate your Normality assumptions.
+```{r}
+par(mfrow=c(1,2))
+boxplot(salary ~ sex, data = psych, main = "Salary by Sex", xlab="Sex", ylab = "Salary  (in thousands of dollars)")
+boxplot(salary ~ rank, data = psych, main = "Salary by Rank", xlab="Rank", ylab = "Salary   (in thousands of dollars)")
+
+par(mfrow=c(2,2))
+plot(aov.salary3)
+```
+Qualitatively by viewing the above box plot and QQ plot we see that the data is symmetrical and does represent traits of normality.
+
+## D) 
+Choose a final model based on your results from parts (a) and (b). Comment on any significant group differences through the post-hoc test. State the differences in salary across different main effect groups and interaction (if included) between them.
+
+Hint: For interpretations of differences for the main effects, state quantitative interpretations of the significantly different groups (e.g. estimated differences between groups and what the difference tells us about salary). For interaction term, identify significant interactions, but no need to interpret it quantitatively.
+
+
+Based on our tests we determined that there was no indication of interaction we will select our ANOVA test type I. Since order does matter with a ANOVA test type I we will use the test with sum of squares for sex being taken first followed by rank.   
+
+Let us now take a look at the variation of salary that can be explained by our model.
+
+R^2
+```{r}
+lm.res.salary <- lm(salary ~ sex + rank, data = psych)
+anova(lm.res.salary)
+summary(lm.res.salary)$r.squared
+```
+Sex and rank can explain 66.34% of the behavior of salary. 
+
+```{r}
+TukeyHSD(aov.salary3) 
+```
+The output of our Tukey HSD test presents the pair-wise group mean differences, followed by their confidence levels, and then their corresponding p-values. 
+
+We will use our p-value for the following hypothesis:
+
+Ho: There is no significant difference between the group means
+
+Ha: There is a significant difference between the group means
+
+Both sex and rank produce a p-value that is significantly smaller than our test statistic (0.05). Therefore we accept the alternative hypothesis that there is a significant difference between the group means. 
+
+For male and female, it can be determined that males average a higher salary than females.
+
+For rank, associate and assistant, it can be determined that associates average a higher salary than assistants. 
+
+## Exercise 4:
+
+Use the cars_new.csv. See HW1 for detailed information of variables.
+
+## A) 
+Start with a three-way main effects ANOVA and choose the best main effects ANOVA model for
+mpg_highway as a function of cylinders, origin, and type for the cars in this set. 
+Comment on which terms should be kept in a model for mpg_highway and why based on Type 3 SS. For the
+model with just predictors you decide to keep, comment on the significant effects in the model
+and comment on how much variation in highway fuel efficiency the model describes.
+
+We will begin by viewing our data set and note that the data is unbalanced. 
+```{r}
+cars <- read.csv("cars_new.csv")
+
+cars$cylinders <- as.factor(cars$cylinders)
+cars$origin <- as.factor(cars$origin)
+cars$type <- as.factor(cars$type)
+str(cars)
+table(cars$cylinders);table(cars$origin)
+```
+We will select the best model by running a backwards elimination model selection test. 
+
+First we will perform a type III ANOVA test with cylinders, origin, and type. 
+```{r}
+aov.cars <- aov(mpg_highway ~ cylinders + origin + type, data = cars)
+Anova(aov.cars, type=3)
+```
+The categorical predictor 'Origin' produces the largest p-value that is greater than criteria/cut off of 0.05.
+So we will fist remove origin.
+
+Next we will run the type III ANOVA test again with just cylinders and type. 
+```{r}
+aov.cars1 <- aov(mpg_highway ~ cylinders + type, data = cars)
+Anova(aov.cars1, type=3)
+```
+The categorical predictor 'Type' has the largest p-value of 0.001175 that is less than our cirteria/cut off (0.05) so we keep both cylinders and type.
+
+The best effects for our ANOVA model are cylinders and type.
+
+## B) 
+Starting with main effects chosen in part (a), find your best ANOVA model by adding in any
+additional interaction terms that will significantly improve the model. For your final model,comment on the significant effects and variation explained by the model.
+
+
+Since we determined that cylinders and type are our best affects for our ANOVA model, we will now check their interaction.
+```{r}
+aov.cars2 <- aov(mpg_highway ~ cylinders * type, data = cars)
+Anova(aov.cars2, type=3)
+```
+Interaction (cylinders:type) has p-value 0.004696 which is significantly less than our test statistic (0.05) so we reject the null and accept that there is an interaction between cylinders and type. 
+
+For type III two-way ANOVA test we will want to keep cylinders and type and their interaction.
+
+Let us now take a look at the variation of mpg-highway that can be explained by our model.
+
+R^2
+```{r}
+lm.res.cars <- lm(mpg_highway ~ cylinders * type, data = cars)
+anova(lm.res.cars)
+summary(lm.res.cars)$r.squared
+```
+Cylinders, type, and their interaction can explain 48.138% of the behavior of mpg_highway.
+
+We will next obtain model diagnostics to validate our Normality assumptions.
+```{r}
+boxplot(mpg_highway ~ cylinders * type, data = cars, main = "MPG Highway by Cylinder/Type/Interaction", xlab="Cylinder/Type/Interaction", ylab = "MPG Highway")
+
+par(mfrow=c(2,2))
+plot(aov.cars2)
+```
+Qualitatively by viewing the above box plot and QQ plot we see that the data is symmetrical and does represent traits of normality.
+
+## C) 
+Comment on any significant group differences through the post-hoc test. What does this tell us
+about fuel efficiency differences across cylinders, origin, or type groups? See Hint in Exercise 3
+
+We will run our Tukey HSD test:
+```{r}
+TukeyHSD(aov.cars2)
+```
+We will analyze each row with a test statistic of 0.05 and the following hypothesis:
+
+Ho: There is no significant difference between the group means
+
+Ha: There is a significant difference between the group means
+
+
+Starting with cylinders, the p-valued produced is less than our test statistic so we will reject our null and accept the alternative hypothesis that there is a difference between 6 and 4 cylinders and conclusively, 4 > 6
+
+Next with sports and sedans, the p-valued produced is less than our test statistic so we will reject our null and accept the alternative hypothesis that there is a difference between sports and sedans and conclusively, Sedans > Sports
+
+For cylinders with type interaction there are only three rows that produce a p-value that is significantly smaller than our test statistic (0.05). Therefore we accept the alternative hypothesis that there is a significant difference between the group means. 
+
+4 cylinder sedan > 6 cylinder sedan 
+
+4 cylinder sedan > 4 cylinder sports 
+
+4 cylinder sedan > 6 cylinder sports 
+
+Our test indicates that for 4 cylinder sports and 6 cylinder sedans, 6 cylinder sports and 6 cylinder sedans, and 6 cylinder sports and 4 cylinder sport all produced a p-value greater than our test statistic thus we will accept our null hypothesis that there is not a significant difference between the group means. 
+
+These results allow us to determine that 4 cylinder vehicles average a higher highway mileage than 6 cylinder vehicles and sedans have a higher average highway mileage than sports cars. 
